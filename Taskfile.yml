@@ -25,3 +25,8 @@ tasks:
     cmds:
       - cdk synth --no-staging --quiet
       - sam local start-api -t ./cdk.out/PRRemindStack.template.json
+  deploy:
+    cmds:
+      - cd slackwebhook && task build
+      - cd cdk && cdk synth --quiet
+      - cd cdk && cdk deploy --require-approval never

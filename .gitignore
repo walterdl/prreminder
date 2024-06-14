@@ -3,3 +3,4 @@ notes.md
 **/dist
 **/.DS_Store
 local/CompileDaemon
+.vscode/tasks.json
