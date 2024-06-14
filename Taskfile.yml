@@ -1,0 +1,11 @@
+version: '3'
+
+tasks:
+  build:
+    dir: '{{.USER_WORKING_DIR}}'
+    preconditions:
+      # Build programs only, avoiding the CDK app.
+      - test -f main.go
+      - test "$(basename $(pwd))" != "cdk"
+    cmds:
+      - GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -tags lambda.norpc -ldflags="-s -w" -o ./dist/bootstrap main.go
