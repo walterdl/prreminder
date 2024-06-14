@@ -1,6 +1,9 @@
 version: '3'
 
 tasks:
+  install_compiledaemon:
+    cmds:
+      - cd local && GOBIN=$(pwd) go install github.com/githubnemo/CompileDaemon@latest
   build:
     dir: '{{.USER_WORKING_DIR}}'
     preconditions:
@@ -9,3 +12,16 @@ tasks:
       - test "$(basename $(pwd))" != "cdk"
     cmds:
       - GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -tags lambda.norpc -ldflags="-s -w" -o ./dist/bootstrap main.go
+  build-dev:
+    dir: '{{.USER_WORKING_DIR}}'
+    cmds:
+      - GOOS=linux GOARCH=arm64 go build -o ./dist/bootstrap main.go
+  watch:
+    dir: '{{.USER_WORKING_DIR}}'
+    cmds:
+      - ../local/CompileDaemon -directory "{{.USER_WORKING_DIR}}" -build "task build-dev"
+  start-api:
+    dir: cdk
+    cmds:
+      - cdk synth --no-staging --quiet
+      - sam local start-api -t ./cdk.out/PRRemindStack.template.json
