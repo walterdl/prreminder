@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/aws/aws-cdk-go/awscdk/v2"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsapigatewayv2"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsapigatewayv2integrations"
@@ -26,12 +28,16 @@ func NewAppStack(scope constructs.Construct, id string, props *AppStackProps) aw
 		ApiName: jsii.String("PRRemindHttpApi"),
 	})
 
+	queueUrl := os.Getenv("NEW_MESSAGE_QUEUE_URL")
 	slackWebhookFn := awslambda.NewFunction(stack, jsii.String("SlackWebhook"), &awslambda.FunctionProps{
 		FunctionName: jsii.String("PRReminder-SlackWebhook"),
 		Code:         awslambda.Code_FromAsset(jsii.String("../slackwebhook/dist"), nil),
 		Runtime:      awslambda.Runtime_PROVIDED_AL2(),
 		Handler:      jsii.String("bootstrap"),
 		Architecture: awslambda.Architecture_ARM_64(),
+		Environment: &map[string]*string{
+			"NEW_MESSAGE_QUEUE_URL": &queueUrl,
+		},
 	})
 	slackWebhookIntegration := awsapigatewayv2integrations.NewHttpLambdaIntegration(jsii.String("slackWebhookHTTPIntegration"), slackWebhookFn, &awsapigatewayv2integrations.HttpLambdaIntegrationProps{})
 	httpApi.AddRoutes(&awsapigatewayv2.AddRoutesOptions{

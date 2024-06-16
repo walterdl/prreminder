@@ -5,10 +5,14 @@ import (
 )
 
 type MessageSlackEvent struct {
-	Event struct {
-		Type string `json:"type"`
-		Text string `json:"text"`
-	} `json:"event"`
+	Event SlackMessage `json:"event"`
+}
+
+type SlackMessage struct {
+	Type    string `json:"type"`
+	Text    string `json:"text"`
+	Ts      string `json:"ts"`
+	Channel string `json:"channel"`
 }
 
 func handleMessageEvent(rawEvent string) (string, error) {
@@ -20,6 +24,11 @@ func handleMessageEvent(rawEvent string) (string, error) {
 
 	if authEvent.Event.Type != "message" {
 		return unknownEvent, nil
+	}
+
+	err = publishToSQS(authEvent.Event)
+	if err != nil {
+		return "", err
 	}
 
 	return "Message received", nil

@@ -21,6 +21,7 @@ tasks:
     cmds:
       - ../local/CompileDaemon -directory "{{.USER_WORKING_DIR}}" -build "task build-dev"
   start-api:
+    dotenv: ['{{.ROOT_DIR}}/local/.env']
     dir: cdk
     cmds:
       - cdk synth --no-staging --quiet
