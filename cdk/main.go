@@ -41,15 +41,14 @@ func NewAppStack(scope constructs.Construct, id string, props *AppStackProps) aw
 	}
 	stack := awscdk.NewStack(scope, &id, &sprops)
 
-	newSlackMessageQueue := awssqs.NewQueue(stack, jsii.String("PRRemind-NewSlackMessage"), &awssqs.QueueProps{
-		QueueName:         jsii.String("PRRemind-NewSlackMessage"),
-		VisibilityTimeout: awscdk.Duration_Seconds(jsii.Number(20)),
-	})
-
 	httpApi := awsapigatewayv2.NewHttpApi(stack, jsii.String("PRRemindHttpApi"), &awsapigatewayv2.HttpApiProps{
 		ApiName: jsii.String("PRRemindHttpApi"),
 	})
 
+	newSlackMessageQueue := awssqs.NewQueue(stack, jsii.String("PRRemind-NewSlackMessage"), &awssqs.QueueProps{
+		QueueName:         jsii.String("PRRemind-NewSlackMessage"),
+		VisibilityTimeout: awscdk.Duration_Seconds(jsii.Number(20)),
+	})
 	slackWebhookFn := awslambda.NewFunction(stack, jsii.String("SlackWebhook"), &awslambda.FunctionProps{
 		FunctionName: jsii.String("PRReminder-SlackWebhook"),
 		Code:         awslambda.Code_FromAsset(jsii.String("../slackwebhook/dist"), nil),
@@ -60,6 +59,8 @@ func NewAppStack(scope constructs.Construct, id string, props *AppStackProps) aw
 			"NEW_MESSAGE_QUEUE_URL": newSlackMessageQueue.QueueUrl(),
 		},
 	})
+	newSlackMessageQueue.GrantSendMessages(slackWebhookFn)
+
 	slackWebhookIntegration := awsapigatewayv2integrations.NewHttpLambdaIntegration(jsii.String("slackWebhookHTTPIntegration"), slackWebhookFn, &awsapigatewayv2integrations.HttpLambdaIntegrationProps{})
 	httpApi.AddRoutes(&awsapigatewayv2.AddRoutesOptions{
 		Path: jsii.String("/slack"),
