@@ -70,5 +70,24 @@ func NewAppStack(scope constructs.Construct, id string, props *AppStackProps) aw
 		Integration: slackWebhookIntegration,
 	})
 
+	NewReminderStarter(stack, &reminderStarterProps{
+		newSlackMessageQueue: &newSlackMessageQueue,
+	})
+
 	return stack
+}
+
+type reminderStarterProps struct {
+	newSlackMessageQueue *awssqs.Queue
+}
+
+func NewReminderStarter(scope constructs.Construct, props *reminderStarterProps) {
+	lambdaFn := awslambda.NewFunction(scope, jsii.String("ReminderStarter"), &awslambda.FunctionProps{
+		FunctionName: jsii.String("PRReminder-ReminderStarter"),
+		Code:         awslambda.Code_FromAsset(jsii.String("../reminderstarter/dist"), nil),
+		Runtime:      awslambda.Runtime_PROVIDED_AL2(),
+		Handler:      jsii.String("bootstrap"),
+		Architecture: awslambda.Architecture_ARM_64(),
+	})
+	(*props.newSlackMessageQueue).GrantConsumeMessages(lambdaFn)
 }
