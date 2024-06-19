@@ -88,6 +88,9 @@ func NewReminderStarter(scope constructs.Construct, props *reminderStarterProps)
 		Runtime:      awslambda.Runtime_PROVIDED_AL2(),
 		Handler:      jsii.String("bootstrap"),
 		Architecture: awslambda.Architecture_ARM_64(),
+		Environment: &map[string]*string{
+			"STATE_MACHINE_ARN": jsii.String("TODO"),
+		},
 	})
 	(*props.newSlackMessageQueue).GrantConsumeMessages(lambdaFn)
 }

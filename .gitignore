@@ -6,4 +6,5 @@ local/CompileDaemon
 .vscode/tasks.json
 **/.env
 **/node_modules
-local/invoke-worker/index.js
+local/invoke-worker/*.js
+!local/invoke-worker/index.template.js

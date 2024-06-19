@@ -19,3 +19,15 @@ Before running lambda Functions locally, the Go functions must be compiled. Ther
 
 Powered by the SAM and CDK integration. Run `task start-api` in the root. It should expose a local web server in port `3000`. The output provides the different endpoints for the Lambda functions. This requires the Lambda functions to be built.
 
+
+### Local Worker
+
+- Run `task start-workers`
+- `cd local/invoke-worker`
+- Create a JS file from the template file and edit the Lambda invocation payload.
+- Run the file with `node FILE.js`
+
+
+## TODO
+
+- Improve `watch` mode to include imported local modules.
