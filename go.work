@@ -5,4 +5,5 @@ use (
     ./slackwebhook
     ./reminderstarter
     ./notifiertypes
+    ./waittimecalc
 )

@@ -45,7 +45,7 @@ func NewAppStack(scope constructs.Construct, id string, props *AppStackProps) aw
 		ApiName: jsii.String("PRRemindHttpApi"),
 	})
 
-	newSlackMessageQueue := awssqs.NewQueue(stack, jsii.String("PRRemind-NewSlackMessage"), &awssqs.QueueProps{
+	slackMessagesQueue := awssqs.NewQueue(stack, jsii.String("PRRemind-NewSlackMessage"), &awssqs.QueueProps{
 		QueueName:         jsii.String("PRRemind-NewSlackMessage"),
 		VisibilityTimeout: awscdk.Duration_Seconds(jsii.Number(20)),
 	})
@@ -56,10 +56,10 @@ func NewAppStack(scope constructs.Construct, id string, props *AppStackProps) aw
 		Handler:      jsii.String("bootstrap"),
 		Architecture: awslambda.Architecture_ARM_64(),
 		Environment: &map[string]*string{
-			"NEW_MESSAGE_QUEUE_URL": newSlackMessageQueue.QueueUrl(),
+			"NEW_MESSAGE_QUEUE_URL": slackMessagesQueue.QueueUrl(),
 		},
 	})
-	newSlackMessageQueue.GrantSendMessages(slackWebhookFn)
+	slackMessagesQueue.GrantSendMessages(slackWebhookFn)
 
 	slackWebhookIntegration := awsapigatewayv2integrations.NewHttpLambdaIntegration(jsii.String("slackWebhookHTTPIntegration"), slackWebhookFn, &awsapigatewayv2integrations.HttpLambdaIntegrationProps{})
 	httpApi.AddRoutes(&awsapigatewayv2.AddRoutesOptions{
@@ -70,27 +70,11 @@ func NewAppStack(scope constructs.Construct, id string, props *AppStackProps) aw
 		Integration: slackWebhookIntegration,
 	})
 
-	NewReminderStarter(stack, &reminderStarterProps{
-		newSlackMessageQueue: &newSlackMessageQueue,
+	notifier := NewNotifier(stack)
+	NewNotifierStarter(stack, &notifierStarterProps{
+		slackMessagesQueue,
+		notifier.stateMachine,
 	})
 
 	return stack
-}
-
-type reminderStarterProps struct {
-	newSlackMessageQueue *awssqs.Queue
-}
-
-func NewReminderStarter(scope constructs.Construct, props *reminderStarterProps) {
-	lambdaFn := awslambda.NewFunction(scope, jsii.String("ReminderStarter"), &awslambda.FunctionProps{
-		FunctionName: jsii.String("PRReminder-ReminderStarter"),
-		Code:         awslambda.Code_FromAsset(jsii.String("../reminderstarter/dist"), nil),
-		Runtime:      awslambda.Runtime_PROVIDED_AL2(),
-		Handler:      jsii.String("bootstrap"),
-		Architecture: awslambda.Architecture_ARM_64(),
-		Environment: &map[string]*string{
-			"STATE_MACHINE_ARN": jsii.String("TODO"),
-		},
-	})
-	(*props.newSlackMessageQueue).GrantConsumeMessages(lambdaFn)
 }

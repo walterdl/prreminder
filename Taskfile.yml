@@ -35,5 +35,7 @@ tasks:
   deploy:
     cmds:
       - cd slackwebhook && task build
+      - cd reminderstarter && task build
+      - cd waittimecalc && task build
       - cd cdk && cdk synth --quiet
       - cd cdk && cdk deploy --require-approval never
