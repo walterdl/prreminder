@@ -29,13 +29,7 @@ func calcWaitingTime(input notifiertypes.NotifierPayload) (time.Duration, error)
 		return target.Sub(now), nil
 	}
 
-	for {
-		target = target.Add(24 * time.Hour)
-		if isInBusinessDay(target, bHours) {
-			target = businessDayStart(target, bHours.start)
-			return target.Sub(now), nil
-		}
-	}
+	return nextBusinessDayStart(target, bHours).Sub(now), nil
 }
 
 func isInBusinessDay(t time.Time, bHours BusinessHours) bool {
@@ -49,4 +43,13 @@ func businessDayStart(t time.Time, startTime ClockTime) time.Time {
 func addToReachBusinessDayStart(t time.Time, startTime ClockTime) time.Time {
 	bDayStart := businessDayStart(t, startTime)
 	return t.Add(time.Duration(bDayStart.Sub(t).Minutes()) * time.Minute)
+}
+
+func nextBusinessDayStart(t time.Time, bHours BusinessHours) time.Time {
+	for {
+		t = t.Add(24 * time.Hour)
+		if isInBusinessDay(t, bHours) {
+			return businessDayStart(t, bHours.start)
+		}
+	}
 }

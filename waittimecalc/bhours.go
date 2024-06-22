@@ -49,6 +49,9 @@ func timezone() (*time.Location, error) {
 	return time.LoadLocation(os.Getenv("TIMEZONE"))
 }
 
+// weekdays returns the weekdays that are considered business days.
+// If DAYS is not set, it defaults to Monday through Friday.
+// Returns an error if DAYS is invalid.
 func weekdays() ([]time.Weekday, error) {
 	if os.Getenv("DAYS") == "" {
 		// Default to Monday through Friday
@@ -72,6 +75,9 @@ func isInvalidWeekday(val int) bool {
 	return val < 0 || val > 6
 }
 
+// clockTime returns the start time of the business day.
+// If START_TIME is not set, it returns an error.
+// Returns an error if START_TIME is invalid.
 func clockTime() (ClockTime, error) {
 	if os.Getenv("START_TIME") == "" {
 		return ClockTime{}, errors.New("START_TIME environment variable not set")
@@ -99,6 +105,9 @@ func isInvalidHour(hour int) bool {
 	return hour < 0 || hour > 23
 }
 
+// prWaitMinutes returns the number of minutes to wait for PR approval.
+// If PR_APPROVAL_WAIT_MINUTES is not set, it returns an error.
+// Returns an error if PR_APPROVAL_WAIT_MINUTES is invalid.
 func prWaitMinutes() (int, error) {
 	val, err := strconv.Atoi(os.Getenv("PR_APPROVAL_WAIT_MINUTES"))
 
