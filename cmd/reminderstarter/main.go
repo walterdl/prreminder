@@ -7,7 +7,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/walterdl/prremind/notifiertypes"
+	"github.com/walterdl/prremind/lib/notifiertypes"
 )
 
 func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {

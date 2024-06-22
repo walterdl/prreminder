@@ -19,7 +19,7 @@ type notifierStarterProps struct {
 func NewNotifierStarter(scope constructs.Construct, props *notifierStarterProps) {
 	starterFn := awslambda.NewFunction(scope, jsii.String("ReminderStarter"), &awslambda.FunctionProps{
 		FunctionName: jsii.String("PRReminder-ReminderStarter"),
-		Code:         awslambda.Code_FromAsset(jsii.String("../reminderstarter/dist"), nil),
+		Code:         awslambda.Code_FromAsset(cmdPath("reminderstarter"), nil),
 		Runtime:      awslambda.Runtime_PROVIDED_AL2(),
 		Handler:      jsii.String("bootstrap"),
 		Architecture: awslambda.Architecture_ARM_64(),

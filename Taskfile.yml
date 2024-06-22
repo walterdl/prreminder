@@ -12,6 +12,11 @@ tasks:
       - test "$(basename $(pwd))" != "cdk"
     cmds:
       - GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -tags lambda.norpc -ldflags="-s -w" -o ./dist/bootstrap
+  build-all:
+    dir: '{{.ROOT_DIR}}'
+    cmds:
+      # Go through each cmd/<?> directory and build the Go program.
+      - for d in $(ls -d cmd/*); do cd $d && task build; cd -; done
   build-dev:
     dir: '{{.USER_WORKING_DIR}}'
     cmds:
@@ -19,7 +24,7 @@ tasks:
   watch:
     dir: '{{.USER_WORKING_DIR}}'
     cmds:
-      - ../local/CompileDaemon -directory "{{.USER_WORKING_DIR}}" -build "task build-dev"
+      - cd "{{.ROOT_DIR}}/local" && ./CompileDaemon -directory "{{.USER_WORKING_DIR}}" -build "task build-dev"
   start-api:
     dotenv: ['{{.ROOT_DIR}}/local/.env']
     dir: cdk
@@ -28,14 +33,11 @@ tasks:
       - sam local start-api -t ./cdk.out/PRRemindStack.template.json
   start-workers:
     dotenv: ['{{.ROOT_DIR}}/local/.env']
-    dir: cdk
     cmds:
       - cdk synth --no-staging --quiet
       - sam local start-lambda -t ./cdk.out/PRRemindStack.template.json
   deploy:
     cmds:
-      - cd slackwebhook && task build
-      - cd reminderstarter && task build
-      - cd waittimecalc && task build
+      - task build-all
       - cd cdk && cdk synth --quiet
       - cd cdk && cdk deploy --require-approval never

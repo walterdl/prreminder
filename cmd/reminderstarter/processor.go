@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/walterdl/prremind/notifiertypes"
+	"github.com/walterdl/prremind/lib/notifiertypes"
 )
 
 func processSlackMessage(msg notifiertypes.SlackMessage) error {

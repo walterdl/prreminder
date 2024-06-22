@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/walterdl/prremind/notifiertypes"
+	"github.com/walterdl/prremind/lib/notifiertypes"
 )
 
 func LambdaHandler(ctx context.Context, input notifiertypes.NotifierPayload) (notifiertypes.NotifierPayload, error) {

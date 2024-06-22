@@ -15,7 +15,7 @@ type Notifier struct {
 func NewNotifier(scope constructs.Construct) *Notifier {
 	waitTimeCalcFn := awslambda.NewFunction(scope, jsii.String("WaitTimeCalc"), &awslambda.FunctionProps{
 		FunctionName: jsii.String("PRReminder-WaitTimeCalc"),
-		Code:         awslambda.Code_FromAsset(jsii.String("../waittimecalc/dist"), nil),
+		Code:         awslambda.Code_FromAsset(cmdPath("waittimecalc"), nil),
 		Runtime:      awslambda.Runtime_PROVIDED_AL2(),
 		Handler:      jsii.String("bootstrap"),
 		Architecture: awslambda.Architecture_ARM_64(),

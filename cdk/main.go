@@ -51,7 +51,7 @@ func NewAppStack(scope constructs.Construct, id string, props *AppStackProps) aw
 	})
 	slackWebhookFn := awslambda.NewFunction(stack, jsii.String("SlackWebhook"), &awslambda.FunctionProps{
 		FunctionName: jsii.String("PRReminder-SlackWebhook"),
-		Code:         awslambda.Code_FromAsset(jsii.String("../slackwebhook/dist"), nil),
+		Code:         awslambda.Code_FromAsset(cmdPath("slackwebhook"), nil),
 		Runtime:      awslambda.Runtime_PROVIDED_AL2(),
 		Handler:      jsii.String("bootstrap"),
 		Architecture: awslambda.Architecture_ARM_64(),

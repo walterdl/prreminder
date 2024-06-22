@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/walterdl/prremind/notifiertypes"
+	"github.com/walterdl/prremind/lib/notifiertypes"
 )
 
 func prLinks(msg notifiertypes.SlackMessage) []notifiertypes.PRLink {

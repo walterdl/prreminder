@@ -9,7 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sfn"
-	"github.com/walterdl/prremind/notifiertypes"
+	"github.com/walterdl/prremind/lib/notifiertypes"
 )
 
 func startReminder(prs []notifiertypes.PRLink, msg notifiertypes.SlackMessage) error {
