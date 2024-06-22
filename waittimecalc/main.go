@@ -8,7 +8,7 @@ import (
 )
 
 func LambdaHandler(ctx context.Context, input notifiertypes.NotifierPayload) (notifiertypes.NotifierPayload, error) {
-	waitingTime, err := calcWaitingTime(input)
+	waitingTime, err := calcWaitingTime()
 	if err != nil {
 		return input, err
 	}
