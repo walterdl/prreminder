@@ -3,11 +3,9 @@ package main
 import (
 	"slices"
 	"time"
-
-	"github.com/walterdl/prremind/notifiertypes"
 )
 
-func calcWaitingTime(input notifiertypes.NotifierPayload) (time.Duration, error) {
+func calcWaitingTime() (time.Duration, error) {
 	tz, err := timezone()
 	if err != nil {
 		return 0, err
