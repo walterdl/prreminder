@@ -2,14 +2,18 @@ package main
 
 import (
 	"context"
-	"log"
 
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/walterdl/prremind/notifiertypes"
 )
 
-func LambdaHandler(ctx context.Context, ev interface{}) error {
-	log.Println(ev)
-	return nil
+func LambdaHandler(ctx context.Context, input notifiertypes.NotifierPayload) (notifiertypes.NotifierPayload, error) {
+	waitingTime, err := calcWaitingTime(input)
+	if err != nil {
+		return input, err
+	}
+	input.WaitingTime = int(waitingTime.Minutes())
+	return input, nil
 }
 
 func main() {

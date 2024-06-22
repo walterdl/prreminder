@@ -37,7 +37,7 @@ func startReminder(prs []notifiertypes.PRLink, msg notifiertypes.SlackMessage) e
 }
 
 func stateMachineInput(prs []notifiertypes.PRLink, msg notifiertypes.SlackMessage) (*string, error) {
-	input := notifiertypes.NotifierInput{
+	input := notifiertypes.NotifierPayload{
 		PRs: prs,
 		Msg: msg,
 	}

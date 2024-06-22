@@ -14,8 +14,9 @@ type PRLink struct {
 	PRID      string `json:"prID"`
 }
 
-// NotifierInput is the input for the state machine
-type NotifierInput struct {
-	PRs []PRLink     `json:"prs"`
-	Msg SlackMessage `json:"slackMessage"`
+// NotifierPayload is the data used across the entire state machine.
+type NotifierPayload struct {
+	PRs         []PRLink     `json:"prs"`
+	Msg         SlackMessage `json:"slackMessage"`
+	WaitingTime int          `json:"waitingTime"`
 }

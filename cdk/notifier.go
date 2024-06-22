@@ -19,6 +19,13 @@ func NewNotifier(scope constructs.Construct) *Notifier {
 		Runtime:      awslambda.Runtime_PROVIDED_AL2(),
 		Handler:      jsii.String("bootstrap"),
 		Architecture: awslambda.Architecture_ARM_64(),
+		Environment: &map[string]*string{
+			// TODO: Replace with values from a config file.
+			"TIMEZONE":                 jsii.String("America/Bogota"),
+			"DAYS":                     jsii.String("1,2,3"),
+			"START_TIME":               jsii.String("8:2"),
+			"PR_APPROVAL_WAIT_MINUTES": jsii.String("120"),
+		},
 	})
 
 	waitTimeCalcStep := sfnTasks.NewLambdaInvoke(scope, jsii.String("WaitTimeCalcTask"), &sfnTasks.LambdaInvokeProps{
