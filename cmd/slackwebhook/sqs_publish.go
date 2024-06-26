@@ -10,7 +10,7 @@ import (
 	"github.com/go-errors/errors"
 )
 
-func publishToSQS(msg SlackMessage) error {
+func publishToSQS(msg MessageEventDetail) error {
 	client, err := sqsClient()
 	if err != nil {
 		return errors.New(err)
@@ -34,7 +34,7 @@ func publishToSQS(msg SlackMessage) error {
 	return nil
 }
 
-func marshalMsg(msg SlackMessage) (*string, error) {
+func marshalMsg(msg MessageEventDetail) (*string, error) {
 	jsonMsg, err := json.Marshal(msg)
 	if err != nil {
 		return nil, errors.New(err)

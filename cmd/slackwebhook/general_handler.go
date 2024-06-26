@@ -6,10 +6,6 @@ import (
 	"github.com/go-errors/errors"
 )
 
-type BaseSlackEvent struct {
-	Type string `json:"type"`
-}
-
 type SlackEventHandler func(rawEvent string) (string, error)
 
 const unknownEvent = "Unknown event"
