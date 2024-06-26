@@ -1,4 +1,4 @@
-package main
+package slack
 
 type BaseSlackEvent struct {
 	// Type is "event_callback" for message events or "url_verification" for the auth event.
@@ -12,13 +12,13 @@ type AuthSlackEvent struct {
 	Challenge string `json:"challenge"`
 }
 
-type MessageEvent struct {
+type BaseSlackMessageEvent struct {
 	// Type is "event_callback" for this type of event.
-	Type  string             `json:"type"`
-	Event MessageEventDetail `json:"event"`
+	Type  string            `json:"type"`
+	Event SlackMessageEvent `json:"event"`
 }
 
-type MessageEventDetail struct {
+type SlackMessageEvent struct {
 	// Type is "message" for message-related events.
 	Type string `json:"type"`
 	// Ts is always present.

@@ -1,11 +1,6 @@
 package notifiertypes
 
-type SlackMessage struct {
-	Type    string `json:"type"`
-	Text    string `json:"text"`
-	TS      string `json:"ts"`
-	Channel string `json:"channel"`
-}
+import "github.com/walterdl/prremind/lib/slack"
 
 type PRLink struct {
 	URL       string `json:"url"`
@@ -16,7 +11,7 @@ type PRLink struct {
 
 // NotifierPayload is the data used across the entire state machine.
 type NotifierPayload struct {
-	PRs         []PRLink     `json:"prs"`
-	Msg         SlackMessage `json:"slackMessage"`
-	WaitingTime int          `json:"waitingTime"`
+	PRs         []PRLink                `json:"prs"`
+	Msg         slack.SlackMessageEvent `json:"slackMessage"`
+	WaitingTime int                     `json:"waitingTime"`
 }

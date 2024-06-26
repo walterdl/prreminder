@@ -3,10 +3,10 @@ package main
 import (
 	"log"
 
-	"github.com/walterdl/prremind/lib/notifiertypes"
+	"github.com/walterdl/prremind/lib/slack"
 )
 
-func processSlackMessage(msg notifiertypes.SlackMessage) error {
+func processSlackMessage(msg slack.SlackMessageEvent) error {
 	prs := prLinks(msg)
 	if prs == nil {
 		return nil

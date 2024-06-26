@@ -8,9 +8,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/go-errors/errors"
+	"github.com/walterdl/prremind/lib/slack"
 )
 
-func publishToSQS(msg MessageEventDetail) error {
+func publishToSQS(msg slack.SlackMessageEvent) error {
 	client, err := sqsClient()
 	if err != nil {
 		return errors.New(err)
@@ -34,7 +35,7 @@ func publishToSQS(msg MessageEventDetail) error {
 	return nil
 }
 
-func marshalMsg(msg MessageEventDetail) (*string, error) {
+func marshalMsg(msg slack.SlackMessageEvent) (*string, error) {
 	jsonMsg, err := json.Marshal(msg)
 	if err != nil {
 		return nil, errors.New(err)

@@ -2,47 +2,25 @@ package main
 
 import (
 	"encoding/json"
+
+	"github.com/walterdl/prremind/lib/slack"
 )
 
 func handleMessageEvent(rawEvent string) (string, error) {
-	var msgEvent MessageEvent
-	err := json.Unmarshal([]byte(rawEvent), &msgEvent)
+	var msg slack.BaseSlackMessageEvent
+	err := json.Unmarshal([]byte(rawEvent), &msg)
 	if err != nil {
 		return "", err
 	}
 
-	if !isPublishable(msgEvent) {
+	if !slack.IsRootMessage(msg) && !slack.IsRootMessageEdition(msg) {
 		return unknownEvent, nil
 	}
 
-	err = publishToSQS(msgEvent.Event)
+	err = publishToSQS(msg.Event)
 	if err != nil {
 		return "", err
 	}
 
 	return "Message received", nil
-}
-
-func isPublishable(msg MessageEvent) bool {
-	if msg.Type != "event_callback" || msg.Event.Type != "message" {
-		// Not a message event
-		return false
-	}
-
-	if msg.Event.ThreadTS == "" && msg.Event.Subtype == "" && msg.Event.Text != "" {
-		// It's a root message
-		return true
-	}
-
-	if msg.Event.Subtype == "message_changed" && msg.Event.Message.ThreadTS == "" && msg.Event.Message.Text != "" {
-		// It's a root message edition
-		return true
-	}
-
-	if msg.Event.Subtype == "message_changed" && msg.Event.Message.Ts == msg.Event.Message.ThreadTS && msg.Event.Message.Text != "" {
-		// It's a root message edition which has replies.
-		return true
-	}
-
-	return false
 }

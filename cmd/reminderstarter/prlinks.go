@@ -6,9 +6,10 @@ import (
 	"strings"
 
 	"github.com/walterdl/prremind/lib/notifiertypes"
+	"github.com/walterdl/prremind/lib/slack"
 )
 
-func prLinks(msg notifiertypes.SlackMessage) []notifiertypes.PRLink {
+func prLinks(msg slack.SlackMessageEvent) []notifiertypes.PRLink {
 	rawLinks := abstractFromMessage(msg)
 	if rawLinks == nil {
 		return nil
@@ -30,7 +31,7 @@ func prLinks(msg notifiertypes.SlackMessage) []notifiertypes.PRLink {
 // abstractFromMessage extracts PR links from a Slack message.
 // It returns a slice of slices of strings. Each sub-slice of strings contains
 // the URL, namespace, project, and PR ID of a PR link.
-func abstractFromMessage(msg notifiertypes.SlackMessage) [][]string {
+func abstractFromMessage(msg slack.SlackMessageEvent) [][]string {
 	// Replaces escaped slashes with regular slashes.
 	// From https:\/\/gitlab.com\/... to https://gitlab.com/...
 	msg.Text = strings.ReplaceAll(msg.Text, `\/`, "/")

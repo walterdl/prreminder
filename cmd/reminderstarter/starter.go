@@ -10,9 +10,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/sfn"
 	"github.com/walterdl/prremind/lib/notifiertypes"
+	"github.com/walterdl/prremind/lib/slack"
 )
 
-func startReminder(prs []notifiertypes.PRLink, msg notifiertypes.SlackMessage) error {
+func startReminder(prs []notifiertypes.PRLink, msg slack.SlackMessageEvent) error {
 	client, err := sfnClient()
 	if err != nil {
 		return err
@@ -36,7 +37,7 @@ func startReminder(prs []notifiertypes.PRLink, msg notifiertypes.SlackMessage) e
 	return nil
 }
 
-func stateMachineInput(prs []notifiertypes.PRLink, msg notifiertypes.SlackMessage) (*string, error) {
+func stateMachineInput(prs []notifiertypes.PRLink, msg slack.SlackMessageEvent) (*string, error) {
 	input := notifiertypes.NotifierPayload{
 		PRs: prs,
 		Msg: msg,
