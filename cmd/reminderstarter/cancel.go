@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/service/sfn"
 	"github.com/aws/aws-sdk-go-v2/service/sfn/types"
@@ -45,7 +46,10 @@ func currentExecution(client *sfn.Client, msg slack.BaseSlackMessageEvent) (*typ
 		}
 
 		for _, execution := range output.Executions {
-			if execution.Name == reminderName(msg.Event) {
+			hasName := strings.HasPrefix(
+				*execution.Name, *reminderName(reminderNameInput{msg: msg.Event, onlyPrefix: true}),
+			)
+			if hasName && execution.Status == types.ExecutionStatusRunning {
 				return &execution, nil
 			}
 		}

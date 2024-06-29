@@ -26,7 +26,7 @@ func startReminder(prs []notifiertypes.PRLink, msg slack.SlackMessageEvent) erro
 	_, err = client.StartExecution(context.TODO(), &sfn.StartExecutionInput{
 		StateMachineArn: &arn,
 		Input:           input,
-		Name:            reminderName(msg),
+		Name:            reminderName(reminderNameInput{msg: msg, onlyPrefix: false}),
 	})
 	if err != nil {
 		return err
