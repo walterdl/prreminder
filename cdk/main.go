@@ -2,9 +2,6 @@ package main
 
 import (
 	"github.com/aws/aws-cdk-go/awscdk/v2"
-	"github.com/aws/aws-cdk-go/awscdk/v2/awsapigatewayv2"
-	"github.com/aws/aws-cdk-go/awscdk/v2/awsapigatewayv2integrations"
-	"github.com/aws/aws-cdk-go/awscdk/v2/awslambda"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awssqs"
 
 	"github.com/aws/constructs-go/constructs/v10"
@@ -41,38 +38,16 @@ func NewAppStack(scope constructs.Construct, id string, props *AppStackProps) aw
 	}
 	stack := awscdk.NewStack(scope, &id, &sprops)
 
-	httpApi := awsapigatewayv2.NewHttpApi(stack, jsii.String("PRRemindHttpApi"), &awsapigatewayv2.HttpApiProps{
-		ApiName: jsii.String("PRRemindHttpApi"),
-	})
-
-	slackMessagesQueue := awssqs.NewQueue(stack, jsii.String("PRRemind-NewSlackMessage"), &awssqs.QueueProps{
+	newMessageQueue := awssqs.NewQueue(stack, jsii.String("PRRemind-NewSlackMessage"), &awssqs.QueueProps{
 		QueueName:         jsii.String("PRRemind-NewSlackMessage"),
 		VisibilityTimeout: awscdk.Duration_Seconds(jsii.Number(20)),
 	})
-	slackWebhookFn := awslambda.NewFunction(stack, jsii.String("SlackWebhook"), &awslambda.FunctionProps{
-		FunctionName: jsii.String("PRReminder-SlackWebhook"),
-		Code:         awslambda.Code_FromAsset(cmdPath("slackwebhook"), nil),
-		Runtime:      awslambda.Runtime_PROVIDED_AL2(),
-		Handler:      jsii.String("bootstrap"),
-		Architecture: awslambda.Architecture_ARM_64(),
-		Environment: &map[string]*string{
-			"NEW_MESSAGE_QUEUE_URL": slackMessagesQueue.QueueUrl(),
-		},
+	newSlackWebhook(stack, &slackWebhookProps{
+		newMessageQueue,
 	})
-	slackMessagesQueue.GrantSendMessages(slackWebhookFn)
-
-	slackWebhookIntegration := awsapigatewayv2integrations.NewHttpLambdaIntegration(jsii.String("slackWebhookHTTPIntegration"), slackWebhookFn, &awsapigatewayv2integrations.HttpLambdaIntegrationProps{})
-	httpApi.AddRoutes(&awsapigatewayv2.AddRoutesOptions{
-		Path: jsii.String("/slack"),
-		Methods: &[]awsapigatewayv2.HttpMethod{
-			"POST",
-		},
-		Integration: slackWebhookIntegration,
-	})
-
 	notifier := NewNotifier(stack)
-	NewNotifierStarter(stack, &notifierStarterProps{
-		slackMessagesQueue,
+	newNotifierStarter(stack, &notifierStarterProps{
+		newMessageQueue,
 		notifier.stateMachine,
 	})
 

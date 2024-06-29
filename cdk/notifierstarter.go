@@ -16,7 +16,7 @@ type notifierStarterProps struct {
 	stateMachine       sfn.StateMachine
 }
 
-func NewNotifierStarter(scope constructs.Construct, props *notifierStarterProps) {
+func newNotifierStarter(scope constructs.Construct, props *notifierStarterProps) {
 	starterFn := awslambda.NewFunction(scope, jsii.String("ReminderStarter"), &awslambda.FunctionProps{
 		FunctionName: jsii.String("PRReminder-ReminderStarter"),
 		Code:         awslambda.Code_FromAsset(cmdPath("reminderstarter"), nil),
