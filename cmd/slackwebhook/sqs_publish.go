@@ -11,7 +11,7 @@ import (
 	"github.com/walterdl/prremind/lib/slack"
 )
 
-func publishToSQS(msg slack.SlackMessageEvent) error {
+func queueMsg(msg slack.BaseSlackMessageEvent) error {
 	client, err := sqsClient()
 	if err != nil {
 		return errors.New(err)
@@ -35,7 +35,7 @@ func publishToSQS(msg slack.SlackMessageEvent) error {
 	return nil
 }
 
-func marshalMsg(msg slack.SlackMessageEvent) (*string, error) {
+func marshalMsg(msg slack.BaseSlackMessageEvent) (*string, error) {
 	jsonMsg, err := json.Marshal(msg)
 	if err != nil {
 		return nil, errors.New(err)

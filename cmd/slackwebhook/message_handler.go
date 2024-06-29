@@ -17,7 +17,7 @@ func handleMessageEvent(rawEvent string) (string, error) {
 		return unknownEvent, nil
 	}
 
-	err = publishToSQS(msg.Event)
+	err = queueMsg(msg)
 	if err != nil {
 		return "", err
 	}

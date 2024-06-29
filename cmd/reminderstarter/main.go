@@ -11,16 +11,14 @@ import (
 )
 
 func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
-	var slackMessage slack.SlackMessageEvent
+	var msg slack.BaseSlackMessageEvent
 	// The process receives one SQS message at a time. Thus, it can safely retrieve just the first element.
-	err := json.Unmarshal([]byte(sqsEvent.Records[0].Body), &slackMessage)
+	err := json.Unmarshal([]byte(sqsEvent.Records[0].Body), &msg)
 	if err != nil {
 		return fmt.Errorf("invalid sqs message body: %v", err)
 	}
 
-	processSlackMessage(slackMessage)
-
-	return nil
+	return processSlackMessage(msg)
 }
 
 func main() {

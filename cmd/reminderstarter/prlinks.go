@@ -9,7 +9,7 @@ import (
 	"github.com/walterdl/prremind/lib/slack"
 )
 
-func prLinks(msg slack.SlackMessageEvent) []notifiertypes.PRLink {
+func prLinks(msg slack.BaseSlackMessageEvent) []notifiertypes.PRLink {
 	rawLinks := abstractFromMessage(msg)
 	if rawLinks == nil {
 		return nil
@@ -31,13 +31,22 @@ func prLinks(msg slack.SlackMessageEvent) []notifiertypes.PRLink {
 // abstractFromMessage extracts PR links from a Slack message.
 // It returns a slice of slices of strings. Each sub-slice of strings contains
 // the URL, namespace, project, and PR ID of a PR link.
-func abstractFromMessage(msg slack.SlackMessageEvent) [][]string {
+func abstractFromMessage(msg slack.BaseSlackMessageEvent) [][]string {
 	// Replaces escaped slashes with regular slashes.
 	// From https:\/\/gitlab.com\/... to https://gitlab.com/...
-	msg.Text = strings.ReplaceAll(msg.Text, `\/`, "/")
+	txt := text(msg)
+	txt = strings.ReplaceAll(txt, `\/`, "/")
 	urlSegment := `([a-zA-Z0-9\-_.~]+)`
 	prPattern := fmt.Sprintf(`https://gitlab.com/%[1]s/%[1]s/-/merge_requests/%[1]s`, urlSegment)
 	re := regexp.MustCompile(prPattern)
 
-	return re.FindAllStringSubmatch(msg.Text, -1)
+	return re.FindAllStringSubmatch(txt, -1)
+}
+
+func text(msg slack.BaseSlackMessageEvent) string {
+	if slack.IsRootMessageEdition(msg) {
+		return msg.Event.Message.Text
+	}
+
+	return msg.Event.Text
 }

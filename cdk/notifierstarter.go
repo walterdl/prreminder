@@ -32,5 +32,6 @@ func NewNotifierStarter(scope constructs.Construct, props *notifierStarterProps)
 	})
 	starterFn.AddEventSource(queueEventSource)
 	props.stateMachine.GrantStartExecution(starterFn)
+	props.stateMachine.GrantRead(starterFn)
 	starterFn.AddEnvironment(jsii.String("STATE_MACHINE_ARN"), props.stateMachine.StateMachineArn(), nil)
 }

@@ -33,6 +33,7 @@ tasks:
       - sam local start-api -t ./cdk.out/PRRemindStack.template.json
   start-workers:
     dotenv: ['{{.ROOT_DIR}}/local/.env']
+    dir: cdk
     cmds:
       - cdk synth --no-staging --quiet
       - sam local start-lambda -t ./cdk.out/PRRemindStack.template.json
