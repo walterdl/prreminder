@@ -50,6 +50,7 @@ func NewAppStack(scope constructs.Construct, id string, props *AppStackProps) aw
 		newMessageQueue,
 		notifier.stateMachine,
 	})
+	newPRChecker(stack)
 
 	return stack
 }
