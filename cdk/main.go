@@ -45,12 +45,14 @@ func NewAppStack(scope constructs.Construct, id string, props *AppStackProps) aw
 	newSlackWebhook(stack, &slackWebhookProps{
 		newMessageQueue,
 	})
-	notifier := NewNotifier(stack)
+	notifier := NewNotifier(stack, notifierProps{
+		prChecker:    newPRChecker(stack),
+		waitTimeCalc: newWaitTimeCalc(stack),
+	})
 	newNotifierStarter(stack, &notifierStarterProps{
 		newMessageQueue,
 		notifier.stateMachine,
 	})
-	newPRChecker(stack)
 
 	return stack
 }

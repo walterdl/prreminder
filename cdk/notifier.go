@@ -8,38 +8,47 @@ import (
 	"github.com/aws/jsii-runtime-go"
 )
 
+type notifierProps struct {
+	prChecker    awslambda.IFunction
+	waitTimeCalc awslambda.IFunction
+}
 type Notifier struct {
 	stateMachine sfn.StateMachine
 }
 
-func NewNotifier(scope constructs.Construct) *Notifier {
-	waitTimeCalcFn := awslambda.NewFunction(scope, jsii.String("WaitTimeCalc"), &awslambda.FunctionProps{
-		FunctionName: jsii.String("PRReminder-WaitTimeCalc"),
-		Code:         awslambda.Code_FromAsset(cmdPath("waittimecalc"), nil),
-		Runtime:      awslambda.Runtime_PROVIDED_AL2(),
-		Handler:      jsii.String("bootstrap"),
-		Architecture: awslambda.Architecture_ARM_64(),
-		Environment: &map[string]*string{
-			// TODO: Replace with values from a config file.
-			"TIMEZONE":                 jsii.String("America/Bogota"),
-			"DAYS":                     jsii.String("1,2,3"),
-			"START_TIME":               jsii.String("8:2"),
-			"PR_APPROVAL_WAIT_MINUTES": jsii.String("120"),
-		},
-	})
-
+func NewNotifier(scope constructs.Construct, props notifierProps) *Notifier {
 	waitTimeCalcStep := sfnTasks.NewLambdaInvoke(scope, jsii.String("WaitTimeCalcTask"), &sfnTasks.LambdaInvokeProps{
-		LambdaFunction: waitTimeCalcFn,
+		LambdaFunction: props.waitTimeCalc,
 		OutputPath:     jsii.String("$"),
 		InputPath:      jsii.String("$"),
 	})
-
+	prCheckerStep := sfnTasks.NewLambdaInvoke(scope, jsii.String("PRCheckerTask"), &sfnTasks.LambdaInvokeProps{
+		LambdaFunction: props.prChecker,
+		OutputPath:     jsii.String("$"),
+		InputPath:      jsii.String("$"),
+	})
 	endStep := sfn.NewSucceed(scope, jsii.String("EndState"), &sfn.SucceedProps{})
 
-	definition := waitTimeCalcStep.Next(endStep)
+	definition := waitTimeCalcStep.Next(
+		prCheckerStep.Next(
+			sfn.NewChoice(scope, jsii.String("IsApproved"), &sfn.ChoiceProps{
+				Comment:    jsii.String("Check if the PR is approved. If it is, the state machine ends. Otherwise, continues to send a reminder."),
+				StateName:  jsii.String("IsApproved"),
+				InputPath:  jsii.String("$"),
+				OutputPath: jsii.String("$"),
+			}).When(
+				sfn.Condition_BooleanEquals(
+					jsii.String("$.approvalStatus.approved"),
+					jsii.Bool(true),
+				),
+				endStep,
+				nil,
+			).Otherwise(endStep),
+		),
+	)
 
 	stateMachine := sfn.NewStateMachine(scope, jsii.String("StateMachine"), &sfn.StateMachineProps{
-		Definition:       definition,
+		DefinitionBody:   sfn.DefinitionBody_FromChainable(definition),
 		StateMachineType: sfn.StateMachineType_STANDARD,
 		StateMachineName: jsii.String("PRReminder-SFNMachine"),
 	})
