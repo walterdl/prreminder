@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"errors"
+	"log"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/aws/aws-sdk-go-v2/service/sfn"
 	"github.com/aws/aws-sdk-go-v2/service/sfn/types"
@@ -13,32 +15,36 @@ import (
 )
 
 var stateMachineArn = os.Getenv("STATE_MACHINE_ARN")
-var errReminderNotFound = errors.New("reminder not found")
+var errRemindersNotFound = errors.New("reminder not found")
 
-func cancelCurrentReminder(msg slack.BaseSlackMessageEvent) error {
+func cancelCurrentReminders(msg slack.BaseSlackMessageEvent) error {
 	client, err := sfnClient.New()
 	if err != nil {
 		return err
 	}
 
-	execution, err := currentExecution(client, msg)
+	remindersPrefix, err := reminderName(reminderNameInput{msg: msg, onlyPrefix: true})
 	if err != nil {
 		return err
 	}
-	cause := "User edited original message, potentially including different PRs"
-	_, err = client.StopExecution(context.TODO(), &sfn.StopExecutionInput{
-		ExecutionArn: execution.ExecutionArn,
-		Cause:        &cause,
-	})
-	return err
+
+	executions, err := currentExecutions(client, *remindersPrefix)
+	if err != nil {
+		return err
+	}
+
+	stopExecutions(client, executions)
+	return nil
 }
 
-func currentExecution(client *sfn.Client, msg slack.BaseSlackMessageEvent) (*types.ExecutionListItem, error) {
+func currentExecutions(client *sfn.Client, remindersPrefix string) ([]types.ExecutionListItem, error) {
 	// Only try twice to find the reminder execution.
 	// This is because the expected use case is that the user edits the message shortly after typing it.
-	// Therefore, it's expected that the reminder will be found among the firsts executions.
+	// Therefore, it's expected that the reminders will be found among the firsts executions.
 	maxTries := 2
 	var nexToken *string
+	result := make([]types.ExecutionListItem, 0)
+
 	for i := 0; i < maxTries; i++ {
 		output, err := fetchExecutions(client, nexToken)
 		if err != nil {
@@ -46,11 +52,9 @@ func currentExecution(client *sfn.Client, msg slack.BaseSlackMessageEvent) (*typ
 		}
 
 		for _, execution := range output.Executions {
-			hasName := strings.HasPrefix(
-				*execution.Name, *reminderName(reminderNameInput{msg: msg.Event, onlyPrefix: true}),
-			)
+			hasName := strings.HasPrefix(*execution.Name, remindersPrefix)
 			if hasName && execution.Status == types.ExecutionStatusRunning {
-				return &execution, nil
+				result = append(result, execution)
 			}
 		}
 
@@ -59,7 +63,11 @@ func currentExecution(client *sfn.Client, msg slack.BaseSlackMessageEvent) (*typ
 		}
 	}
 
-	return nil, errReminderNotFound
+	if len(result) > 0 {
+		return result, nil
+	}
+
+	return nil, errRemindersNotFound
 }
 
 func fetchExecutions(client *sfn.Client, nextToken *string) (*sfn.ListExecutionsOutput, error) {
@@ -68,4 +76,29 @@ func fetchExecutions(client *sfn.Client, nextToken *string) (*sfn.ListExecutions
 		MaxResults:      10,
 		NextToken:       nextToken,
 	})
+}
+
+func stopExecutions(client *sfn.Client, execs []types.ExecutionListItem) {
+	wg := sync.WaitGroup{}
+
+	for _, exec := range execs {
+		wg.Add(1)
+		go func(client *sfn.Client, exec types.ExecutionListItem) {
+			defer wg.Done()
+			cause := "User edited original message, potentially including different PRs"
+			_, err := client.StopExecution(context.TODO(), &sfn.StopExecutionInput{
+				ExecutionArn: exec.ExecutionArn,
+				Cause:        &cause,
+			})
+
+			if err != nil {
+				// Reminders that could not be stopped are left to run.
+				// I.e. the error is not propagated but logged.
+				// Although not ideal, extra reminders are not harmful.
+				log.Println(err)
+			}
+		}(client, exec)
+	}
+
+	wg.Wait()
 }
