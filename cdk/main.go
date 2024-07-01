@@ -46,8 +46,9 @@ func NewAppStack(scope constructs.Construct, id string, props *AppStackProps) aw
 		newMessageQueue,
 	})
 	notifier := NewNotifier(stack, notifierProps{
-		prChecker:    newPRChecker(stack),
-		waitTimeCalc: newWaitTimeCalc(stack),
+		prChecker:          newPRChecker(stack),
+		waitTimeCalc:       newWaitTimeCalc(stack),
+		notificationSender: newNotificationSender(stack),
 	})
 	newNotifierStarter(stack, &notifierStarterProps{
 		newMessageQueue,

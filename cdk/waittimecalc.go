@@ -16,9 +16,9 @@ func newWaitTimeCalc(scope constructs.Construct) awslambda.IFunction {
 		Environment: &map[string]*string{
 			// TODO: Replace with values from a config file.
 			"TIMEZONE":                 jsii.String("America/Bogota"),
-			"DAYS":                     jsii.String("1,2,3"),
+			"DAYS":                     jsii.String("0,1,2,3,4,5,6"),
 			"START_TIME":               jsii.String("8:2"),
-			"PR_APPROVAL_WAIT_MINUTES": jsii.String("120"),
+			"PR_APPROVAL_WAIT_MINUTES": jsii.String("30"),
 		},
 	})
 }

@@ -8,11 +8,11 @@ import (
 )
 
 func LambdaHandler(ctx context.Context, input notifiertypes.NotifierPayload) (notifiertypes.NotifierPayload, error) {
-	waitingTime, err := calcWaitingTime()
+	err := sendNotification(input)
 	if err != nil {
-		return input, err
+		panic(err)
 	}
-	input.WaitingTimeInSecs = int(waitingTime.Seconds())
+
 	return input, nil
 }
 

@@ -9,8 +9,9 @@ import (
 )
 
 type notifierProps struct {
-	prChecker    awslambda.IFunction
-	waitTimeCalc awslambda.IFunction
+	prChecker          awslambda.IFunction
+	waitTimeCalc       awslambda.IFunction
+	notificationSender awslambda.IFunction
 }
 type Notifier struct {
 	stateMachine sfn.StateMachine
@@ -19,31 +20,45 @@ type Notifier struct {
 func NewNotifier(scope constructs.Construct, props notifierProps) *Notifier {
 	waitTimeCalcStep := sfnTasks.NewLambdaInvoke(scope, jsii.String("WaitTimeCalcTask"), &sfnTasks.LambdaInvokeProps{
 		LambdaFunction: props.waitTimeCalc,
-		OutputPath:     jsii.String("$"),
 		InputPath:      jsii.String("$"),
+		OutputPath:     jsii.String("$.Payload"),
 	})
 	prCheckerStep := sfnTasks.NewLambdaInvoke(scope, jsii.String("PRCheckerTask"), &sfnTasks.LambdaInvokeProps{
 		LambdaFunction: props.prChecker,
-		OutputPath:     jsii.String("$"),
 		InputPath:      jsii.String("$"),
+		OutputPath:     jsii.String("$.Payload"),
+	})
+	notificationSenderStep := sfnTasks.NewLambdaInvoke(scope, jsii.String("NotificationSenderTask"), &sfnTasks.LambdaInvokeProps{
+		LambdaFunction: props.notificationSender,
+		InputPath:      jsii.String("$"),
+		OutputPath:     jsii.String("$.Payload"),
+	})
+	waitStep := sfn.NewWait(scope, jsii.String("WaitTask"), &sfn.WaitProps{
+		Time:      sfn.WaitTime_SecondsPath(jsii.String("$.waitingTimeInSeconds")),
+		StateName: jsii.String("WaitForApproval"),
 	})
 	endStep := sfn.NewSucceed(scope, jsii.String("EndState"), &sfn.SucceedProps{})
 
 	definition := waitTimeCalcStep.Next(
-		prCheckerStep.Next(
-			sfn.NewChoice(scope, jsii.String("IsApproved"), &sfn.ChoiceProps{
-				Comment:    jsii.String("Check if the PR is approved. If it is, the state machine ends. Otherwise, continues to send a reminder."),
-				StateName:  jsii.String("IsApproved"),
-				InputPath:  jsii.String("$"),
-				OutputPath: jsii.String("$"),
-			}).When(
-				sfn.Condition_BooleanEquals(
-					jsii.String("$.approvalStatus.approved"),
-					jsii.Bool(true),
+		waitStep.Next(
+			prCheckerStep.Next(
+				sfn.NewChoice(scope, jsii.String("IsApproved"), &sfn.ChoiceProps{
+					Comment:    jsii.String("Check if the PR is approved. If it is, the state machine ends. Otherwise, continues to send a reminder."),
+					StateName:  jsii.String("IsApproved"),
+					InputPath:  jsii.String("$"),
+					OutputPath: jsii.String("$"),
+				}).When(
+					sfn.Condition_BooleanEquals(
+						jsii.String("$.approvalStatus.approved"),
+						jsii.Bool(true),
+					),
+					endStep,
+					nil,
+				).Otherwise(
+					// Loop back to the start of the state machine.
+					notificationSenderStep.Next(waitTimeCalcStep),
 				),
-				endStep,
-				nil,
-			).Otherwise(endStep),
+			),
 		),
 	)
 
