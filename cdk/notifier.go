@@ -51,21 +51,29 @@ func NewNotifier(scope constructs.Construct, props notifierProps) *Notifier {
 					InputPath:  jsii.String("$"),
 					OutputPath: jsii.String("$"),
 				}).When(
-					sfn.Condition_And(
-						sfn.Condition_BooleanEquals(
-							jsii.String("$.approvalStatus.approved"),
-							jsii.Bool(true),
-						),
-						sfn.Condition_NumberLessThan(
-							jsii.String("$.executionCount"),
-							jsii.Number(maxNotifications()),
-						),
+					sfn.Condition_BooleanEquals(
+						jsii.String("$.approvalStatus.approved"),
+						jsii.Bool(true),
 					),
 					endStep,
 					nil,
 				).Otherwise(
 					// Loop back to the start of the state machine.
-					notificationSenderStep.Next(waitTimeCalcStep),
+					notificationSenderStep.Next(
+						sfn.NewChoice(scope, jsii.String("MaxNotifications"), &sfn.ChoiceProps{
+							Comment:    jsii.String("Check if the maximum number of notifications has been sent."),
+							StateName:  jsii.String("MaxNotifications"),
+							InputPath:  jsii.String("$"),
+							OutputPath: jsii.String("$"),
+						}).When(
+							sfn.Condition_NumberLessThan(
+								jsii.String("$.executionsCount"),
+								jsii.Number(maxNotifications()),
+							),
+							waitTimeCalcStep,
+							nil,
+						).Otherwise(endStep),
+					),
 				),
 			),
 		),
