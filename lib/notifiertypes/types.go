@@ -21,4 +21,5 @@ type NotifierPayload struct {
 	PRApprovalStatus  PRApprovalStatus            `json:"approvalStatus"`
 	Msg               slack.BaseSlackMessageEvent `json:"slackMessage"`
 	WaitingTimeInSecs int                         `json:"waitingTimeInSeconds"`
+	ExecCount         int                         `json:"executionsCount"`
 }

@@ -14,6 +14,7 @@ func LambdaHandler(ctx context.Context, input notifiertypes.NotifierPayload) (no
 	}
 
 	input.PRApprovalStatus = approvalStatus
+	input.ExecCount++
 	return input, nil
 }
 

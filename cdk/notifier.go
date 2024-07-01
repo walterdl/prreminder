@@ -1,6 +1,9 @@
 package main
 
 import (
+	"os"
+	"strconv"
+
 	"github.com/aws/aws-cdk-go/awscdk/v2/awslambda"
 	sfn "github.com/aws/aws-cdk-go/awscdk/v2/awsstepfunctions"
 	sfnTasks "github.com/aws/aws-cdk-go/awscdk/v2/awsstepfunctionstasks"
@@ -48,9 +51,15 @@ func NewNotifier(scope constructs.Construct, props notifierProps) *Notifier {
 					InputPath:  jsii.String("$"),
 					OutputPath: jsii.String("$"),
 				}).When(
-					sfn.Condition_BooleanEquals(
-						jsii.String("$.approvalStatus.approved"),
-						jsii.Bool(true),
+					sfn.Condition_And(
+						sfn.Condition_BooleanEquals(
+							jsii.String("$.approvalStatus.approved"),
+							jsii.Bool(true),
+						),
+						sfn.Condition_NumberLessThan(
+							jsii.String("$.executionCount"),
+							jsii.Number(maxNotifications()),
+						),
 					),
 					endStep,
 					nil,
@@ -71,4 +80,19 @@ func NewNotifier(scope constructs.Construct, props notifierProps) *Notifier {
 	return &Notifier{
 		stateMachine,
 	}
+}
+
+func maxNotifications() int {
+	defaultVal := 2
+	rawVal := os.Getenv("MAX_NOTIFICATIONS")
+	if rawVal == "" {
+		return defaultVal
+	}
+
+	result, err := strconv.Atoi(rawVal)
+	if err != nil {
+		return defaultVal
+	}
+
+	return result
 }
