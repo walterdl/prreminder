@@ -7,7 +7,7 @@ import (
 	"github.com/walterdl/prremind/lib/notifiertypes"
 )
 
-func LambdaHandler(ctx context.Context, input notifiertypes.NotifierPayload) (notifiertypes.NotifierPayload, error) {
+func LambdaHandler(_ context.Context, input notifiertypes.NotifierPayload) (notifiertypes.NotifierPayload, error) {
 	err := sendNotification(input)
 	if err != nil {
 		panic(err)

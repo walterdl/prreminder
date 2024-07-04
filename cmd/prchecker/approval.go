@@ -30,7 +30,7 @@ func approvalStatus(pr notifiertypes.PRLink) (RAWPRApprovalStatus, error) {
 	client := http.Client{
 		Timeout: reqTimeout,
 	}
-	req, err := http.NewRequest(http.MethodGet, url(pr), nil)
+	req, err := http.NewRequest(http.MethodGet, url(pr), http.NoBody)
 	if err != nil {
 		return result, err
 	}

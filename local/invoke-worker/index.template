@@ -23,20 +23,20 @@ const invokeFunction = async () => {
           "receiptHandle": "MessageReceiptHandle",
           "body": JSON.stringify({
             type: "?",
-            text: `Hello, world!`,
+            text: "Hello, world!",
             ts: "?",
             channel: "?",
           }),
           "attributes": {
             "ApproximateReceiveCount": "1",
             "SentTimestamp": "1523232000000",
-            "SenderId": "123456789012",
+            "SenderId": "...",
             "ApproximateFirstReceiveTimestamp": "1523232000001"
           },
           "messageAttributes": {},
           "md5OfBody": "7b270e59b47ff90a553787216d55d91d",
           "eventSource": "aws:sqs",
-          "eventSourceARN": "arn:aws:sqs:us-east-1:123456789012:MyQueue",
+          "eventSourceARN": "arn:aws:sqs:us-east-1:...:MyQueue",
           "awsRegion": "us-east-1"
         }
       ]

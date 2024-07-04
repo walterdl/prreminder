@@ -13,7 +13,7 @@ func main() {
 	lambda.Start(LambdaHandler)
 }
 
-func LambdaHandler(ctx context.Context, ev events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
+func LambdaHandler(_ context.Context, ev events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
 	res, err := handleSlackEvent(ev.Body)
 	if err != nil {
 		return errorResponse(err)

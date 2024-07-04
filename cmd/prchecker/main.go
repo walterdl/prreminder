@@ -8,7 +8,7 @@ import (
 	"github.com/walterdl/prremind/lib/notifiertypes"
 )
 
-func LambdaHandler(ctx context.Context, input notifiertypes.NotifierPayload) (notifiertypes.NotifierPayload, error) {
+func LambdaHandler(_ context.Context, input notifiertypes.NotifierPayload) (notifiertypes.NotifierPayload, error) {
 	approvalStatus, err := checkPR(input)
 	input.ExecCount++
 

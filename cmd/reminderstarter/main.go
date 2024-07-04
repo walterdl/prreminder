@@ -10,7 +10,7 @@ import (
 	"github.com/walterdl/prremind/lib/slack"
 )
 
-func LambdaHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
+func LambdaHandler(_ context.Context, sqsEvent events.SQSEvent) error {
 	var msg slack.BaseSlackMessageEvent
 	// The process receives one SQS message at a time. Thus, it can safely retrieve just the first element.
 	err := json.Unmarshal([]byte(sqsEvent.Records[0].Body), &msg)

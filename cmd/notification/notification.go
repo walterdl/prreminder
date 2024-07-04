@@ -26,7 +26,7 @@ func sendNotification(input notifiertypes.NotifierPayload) error {
 }
 
 func msg(input notifiertypes.NotifierPayload) string {
-	return strings.Replace(msgTemplate, "{PR}", input.PR.URL, -1)
+	return strings.ReplaceAll(msgTemplate, "{PR}", input.PR.URL)
 }
 
 func threadTS(input notifiertypes.NotifierPayload) string {
