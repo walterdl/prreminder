@@ -23,16 +23,19 @@ type Notifier struct {
 func NewNotifier(scope constructs.Construct, props notifierProps) *Notifier {
 	waitTimeCalcStep := sfnTasks.NewLambdaInvoke(scope, jsii.String("WaitTimeCalcTask"), &sfnTasks.LambdaInvokeProps{
 		LambdaFunction: props.waitTimeCalc,
+		StateName:      jsii.String("CalculateWaitTime"),
 		InputPath:      jsii.String("$"),
 		OutputPath:     jsii.String("$.Payload"),
 	})
 	prCheckerStep := sfnTasks.NewLambdaInvoke(scope, jsii.String("PRCheckerTask"), &sfnTasks.LambdaInvokeProps{
 		LambdaFunction: props.prChecker,
+		StateName:      jsii.String("CheckPR"),
 		InputPath:      jsii.String("$"),
 		OutputPath:     jsii.String("$.Payload"),
 	})
 	notificationSenderStep := sfnTasks.NewLambdaInvoke(scope, jsii.String("NotificationSenderTask"), &sfnTasks.LambdaInvokeProps{
 		LambdaFunction: props.notificationSender,
+		StateName:      jsii.String("SendReminder"),
 		InputPath:      jsii.String("$"),
 		OutputPath:     jsii.String("$.Payload"),
 	})
@@ -66,9 +69,9 @@ func NewNotifier(scope constructs.Construct, props notifierProps) *Notifier {
 				).Otherwise(
 					// Loop back to the start of the state machine.
 					notificationSenderStep.Next(
-						sfn.NewChoice(scope, jsii.String("MaxNotifications"), &sfn.ChoiceProps{
+						sfn.NewChoice(scope, jsii.String("MaxNotificationsReached"), &sfn.ChoiceProps{
 							Comment:    jsii.String("Check if the maximum number of notifications has been sent."),
-							StateName:  jsii.String("MaxNotifications"),
+							StateName:  jsii.String("MaxNotificationsReached"),
 							InputPath:  jsii.String("$"),
 							OutputPath: jsii.String("$"),
 						}).When(
