@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -22,6 +23,7 @@ type RAWPRApprovalStatus struct {
 }
 
 var apiKey = os.Getenv("GITLAB_API_KEY")
+var errPRNotFound = errors.New("pr not found")
 
 func approvalStatus(pr notifiertypes.PRLink) (RAWPRApprovalStatus, error) {
 	result := RAWPRApprovalStatus{}
@@ -47,6 +49,10 @@ func approvalStatus(pr notifiertypes.PRLink) (RAWPRApprovalStatus, error) {
 	}
 
 	if res.StatusCode != http.StatusOK {
+		if res.StatusCode == http.StatusNotFound {
+			return result, errPRNotFound
+		}
+
 		return result, errorResponse(body, res.StatusCode)
 	}
 

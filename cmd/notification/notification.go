@@ -34,5 +34,5 @@ func threadTS(input notifiertypes.NotifierPayload) string {
 		return input.Msg.Event.Message.ThreadTS
 	}
 
-	return input.Msg.Event.Ts
+	return input.Msg.Event.TS
 }

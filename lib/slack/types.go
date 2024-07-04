@@ -21,8 +21,8 @@ type BaseSlackMessageEvent struct {
 type SlackMessageEvent struct {
 	// Type is "message" for message-related events.
 	Type string `json:"type"`
-	// Ts is always present.
-	Ts string `json:"ts"`
+	// TS is always present.
+	TS string `json:"ts"`
 	// Channel is always present.
 	Channel string `json:"channel"`
 	// Text is the message content. Present when is a root or a reply message.
@@ -33,8 +33,9 @@ type SlackMessageEvent struct {
 	// It is also "message_replied" when the message is a reply.
 	// However, due to a Slack bug, this subtype value is not delivered.
 	// ThreadTS must be used to determine if the message is a reply.
-	Subtype string        `json:"subtype"`
-	Message EditedMessage `json:"message"`
+	Subtype         string          `json:"subtype"`
+	Message         EditedMessage   `json:"message"`
+	PreviousMessage PreviousMessage `json:"previous_message"`
 }
 
 type EditedMessage struct {
@@ -45,6 +46,11 @@ type EditedMessage struct {
 	Subtype string `json:"subtype"`
 	// ThreadTS is always present.
 	ThreadTS string `json:"thread_ts"`
-	// Ts is always present.
-	Ts string `json:"ts"`
+	// TS is always present.
+	TS string `json:"ts"`
+}
+
+type PreviousMessage struct {
+	TS       string `json:"ts"`
+	ThreadTs string `json:"thread_ts"`
 }

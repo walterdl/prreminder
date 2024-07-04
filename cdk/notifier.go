@@ -45,15 +45,21 @@ func NewNotifier(scope constructs.Construct, props notifierProps) *Notifier {
 	definition := waitTimeCalcStep.Next(
 		waitStep.Next(
 			prCheckerStep.Next(
-				sfn.NewChoice(scope, jsii.String("IsApproved"), &sfn.ChoiceProps{
+				sfn.NewChoice(scope, jsii.String("IsApprovedOrDoesNotExist"), &sfn.ChoiceProps{
 					Comment:    jsii.String("Check if the PR is approved. If it is, the state machine ends. Otherwise, continues to send a reminder."),
-					StateName:  jsii.String("IsApproved"),
+					StateName:  jsii.String("IsApprovedOrDoesNotExist"),
 					InputPath:  jsii.String("$"),
 					OutputPath: jsii.String("$"),
 				}).When(
-					sfn.Condition_BooleanEquals(
-						jsii.String("$.approvalStatus.approved"),
-						jsii.Bool(true),
+					sfn.Condition_Or(
+						sfn.Condition_BooleanEquals(
+							jsii.String("$.approvalStatus.approved"),
+							jsii.Bool(true),
+						),
+						sfn.Condition_BooleanEquals(
+							jsii.String("$.prNotFound"),
+							jsii.Bool(true),
+						),
 					),
 					endStep,
 					nil,

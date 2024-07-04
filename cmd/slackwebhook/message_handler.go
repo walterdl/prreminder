@@ -13,7 +13,9 @@ func handleMessageEvent(rawEvent string) (string, error) {
 		return "", err
 	}
 
-	if !slack.IsRootMessage(msg) && !slack.IsRootMessageEdition(msg) {
+	if !slack.IsRootMessage(msg) &&
+		!slack.IsRootMessageEdition(msg) &&
+		!slack.IsRootDeletion(msg) {
 		return unknownEvent, nil
 	}
 

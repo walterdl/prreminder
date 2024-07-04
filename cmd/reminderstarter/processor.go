@@ -8,7 +8,7 @@ import (
 )
 
 func processSlackMessage(msg slack.BaseSlackMessageEvent) error {
-	if slack.IsRootMessageEdition(msg) {
+	if slack.IsRootMessageEdition(msg) || slack.IsRootDeletion(msg) {
 		err := cancelCurrentReminders(msg)
 		if err != nil && !errors.Is(err, errRemindersNotFound) {
 			return err

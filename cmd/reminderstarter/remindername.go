@@ -18,7 +18,7 @@ type reminderNameInput struct {
 // The suffix is a random UUID.
 // State machine executions for a message can be identified by the prefix.
 func reminderName(input reminderNameInput) (*string, error) {
-	prefix := fmt.Sprintf("%s-%s", input.msg.Event.Channel, input.msg.Event.Ts)
+	prefix := fmt.Sprintf("%s-%s", slack.Channel(input.msg), slack.TS(input.msg))
 	if input.onlyPrefix {
 		return &prefix, nil
 	}
