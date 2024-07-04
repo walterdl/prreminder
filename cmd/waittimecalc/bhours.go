@@ -20,6 +20,8 @@ type ClockTime struct {
 	min  int
 }
 
+var errInvalidStartTime = errors.New("invalid START_TIME format")
+
 func newBusinessHours() (BusinessHours, error) {
 	tz, err := timezone()
 	if err != nil {
@@ -85,17 +87,17 @@ func clockTime() (ClockTime, error) {
 
 	parts := strings.Split(os.Getenv("START_TIME"), ":")
 	if len(parts) != 2 {
-		return ClockTime{}, errors.New("invalid START_TIME format")
+		return ClockTime{}, errInvalidStartTime
 	}
 
 	hour, err := strconv.Atoi(parts[0])
 	if err != nil || isInvalidHour(hour) {
-		return ClockTime{}, errors.New("invalid START_TIME format")
+		return ClockTime{}, errInvalidStartTime
 	}
 
 	min, err := strconv.Atoi(parts[1])
 	if err != nil || isInvalidHour(min) {
-		return ClockTime{}, errors.New("invalid START_TIME format")
+		return ClockTime{}, errInvalidStartTime
 	}
 
 	return ClockTime{hour, min}, nil
