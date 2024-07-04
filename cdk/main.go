@@ -17,7 +17,7 @@ func main() {
 
 	app := awscdk.NewApp(nil)
 
-	NewAppStack(app, "PRRemindStack", &AppStackProps{
+	NewAppStack(app, "PRReminderStack", &AppStackProps{
 		awscdk.StackProps{
 			Env: env(),
 		},
@@ -38,8 +38,8 @@ func NewAppStack(scope constructs.Construct, id string, props *AppStackProps) aw
 	}
 	stack := awscdk.NewStack(scope, &id, &sprops)
 
-	newMessageQueue := awssqs.NewQueue(stack, jsii.String("PRRemind-NewSlackMessage"), &awssqs.QueueProps{
-		QueueName:         jsii.String("PRRemind-NewSlackMessage"),
+	newMessageQueue := awssqs.NewQueue(stack, jsii.String("PRReminder-NewSlackMessage"), &awssqs.QueueProps{
+		QueueName:         jsii.String("PRReminder-NewSlackMessage"),
 		VisibilityTimeout: awscdk.Duration_Seconds(jsii.Number(20)),
 	})
 	newSlackWebhook(stack, &slackWebhookProps{
