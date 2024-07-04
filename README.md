@@ -1,3 +1,9 @@
+## Description
+
+PRReminder monitors a Slack channel for pull request (PR) messages, initiating a series of steps using AWS Step Functions to ensure timely PR reviews. It decouples event processing using AWS Lambda and SQS, abstracts PR links, and manages state machines for each PR to periodically check their status. The system sends reminders via Slack if PRs remain unapproved within a specified timeframe, respecting business hours and optimizing the review process by integrating seamlessly with Slack and GitLab APIs.
+
+![Architecture](.doc/design.jpg)
+
 ## Local Development
 
 ### Requirements
@@ -26,8 +32,3 @@ Powered by the SAM and CDK integration. Run `task start-api` in the root. It sho
 - `cd local/invoke-worker`
 - Create a JS file from the template file and edit the Lambda invocation payload.
 - Run the file with `node FILE.js`
-
-
-## TODO
-
-- Improve `watch` mode to include imported local modules.
