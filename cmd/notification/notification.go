@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -10,7 +11,7 @@ import (
 )
 
 var api = slack.New(os.Getenv("SLACK_BOT_TOKEN"))
-var msgTemplate = "Hi!\n\n<!here> This PR is still waiting for approvals. Please review it.\n\n{PR}"
+var msgTemplate = "Hi!\n\n<!here> This PR is still waiting for {approvalsInfo}. Please review it.\n\n{PR}"
 
 func sendNotification(input notifiertypes.NotifierPayload) error {
 	_, _, err := api.PostMessage(input.Msg.Event.Channel,
@@ -26,7 +27,22 @@ func sendNotification(input notifiertypes.NotifierPayload) error {
 }
 
 func msg(input notifiertypes.NotifierPayload) string {
-	return strings.ReplaceAll(msgTemplate, "{PR}", input.PR.URL)
+	result := strings.ReplaceAll(msgTemplate, "{PR}", input.PR.URL)
+
+	approvalsLeft := fmt.Sprintf(
+		"%d approval%s",
+		input.PRApprovalStatus.ApprovalsLeft,
+		pluralSuffix(input.PRApprovalStatus.ApprovalsLeft),
+	)
+
+	return strings.ReplaceAll(result, "{approvalsInfo}", approvalsLeft)
+}
+
+func pluralSuffix(n int) string {
+	if n == 1 {
+		return ""
+	}
+	return "s"
 }
 
 func threadTS(input notifiertypes.NotifierPayload) string {
