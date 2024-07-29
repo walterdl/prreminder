@@ -1,9 +1,10 @@
 package slack
 
 func IsRootMessage(msg BaseSlackMessageEvent) bool {
+	isCorrectSubtype := msg.Event.Subtype == "" || msg.Event.Subtype == "file_share"
 	return isMessageEvent(msg) &&
 		msg.Event.ThreadTS == "" &&
-		msg.Event.Subtype == "" &&
+		isCorrectSubtype &&
 		msg.Event.Text != ""
 }
 
@@ -31,7 +32,8 @@ func editionTS(msg BaseSlackMessageEvent) string {
 
 	if msg.Event.Subtype == "message_changed" &&
 		msg.Event.Message.TS == msg.Event.Message.ThreadTS &&
-		msg.Event.Message.Text != "" {
+		msg.Event.Message.Text != "" &&
+		msg.Event.Message.Text != msg.Event.PreviousMessage.Text {
 		// It's a root message edition which has replies.
 		return msg.Event.Message.TS
 	}

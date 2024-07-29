@@ -53,4 +53,5 @@ type EditedMessage struct {
 type PreviousMessage struct {
 	TS       string `json:"ts"`
 	ThreadTs string `json:"thread_ts"`
+	Text     string `json:"text"`
 }
