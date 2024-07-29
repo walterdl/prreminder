@@ -9,7 +9,7 @@ import (
 
 func newNotificationSender(scope constructs.Construct) awslambda.Function {
 	slackBotToken := awsssm.StringParameter_FromStringParameterAttributes(scope, jsii.String("SlackBothToken"), &awsssm.StringParameterAttributes{
-		ParameterName: jsii.String("/prremind/slack/bot-token"),
+		ParameterName: jsii.String("/prreminder/slack/bot-token"),
 		ValueType:     awsssm.ParameterValueType_STRING,
 	})
 

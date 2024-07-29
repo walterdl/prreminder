@@ -9,7 +9,7 @@ import (
 
 func newPRChecker(scope constructs.Construct) awslambda.Function {
 	gitlabAPIKey := awsssm.StringParameter_FromStringParameterAttributes(scope, jsii.String("GitlabAPIKey"), &awsssm.StringParameterAttributes{
-		ParameterName: jsii.String("/prremind/gitlab/api-key"),
+		ParameterName: jsii.String("/prreminder/gitlab/api-key"),
 		ValueType:     awsssm.ParameterValueType_STRING,
 	})
 
