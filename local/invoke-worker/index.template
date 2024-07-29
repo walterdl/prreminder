@@ -13,33 +13,37 @@ const client = new LambdaClient(config);
 
 const invokeFunction = async () => {
   const params = {
-    // Replace with function's name
-    FunctionName: "PRReminder-ReminderStarter",
-    // Replace with worker's payload
+    FunctionName: "PRReminder-PRChecker",
     Payload: JSON.stringify({
-      "Records": [
-        {
-          "messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78",
-          "receiptHandle": "MessageReceiptHandle",
-          "body": JSON.stringify({
-            type: "?",
-            text: "Hello, world!",
-            ts: "?",
-            channel: "?",
-          }),
-          "attributes": {
-            "ApproximateReceiveCount": "1",
-            "SentTimestamp": "1523232000000",
-            "SenderId": "...",
-            "ApproximateFirstReceiveTimestamp": "1523232000001"
-          },
-          "messageAttributes": {},
-          "md5OfBody": "7b270e59b47ff90a553787216d55d91d",
-          "eventSource": "aws:sqs",
-          "eventSourceARN": "arn:aws:sqs:us-east-1:...:MyQueue",
-          "awsRegion": "us-east-1"
+      "pr": {
+        "url": "PR LINK HERE...",
+        "namespace": "GitLab namespace",
+        "project": "GitLab project name",
+        "prID": "PR ID"
+      },
+      "approvalStatus": {
+        "approved": false,
+        "approvalsRequired": 0,
+        "approvalsLeft": 0
+      },
+      "slackMessage": {
+        "type": "event_callback",
+        "event": {
+          "type": "message",
+          "ts": "1719777952.293069",
+          "channel": "C0788GWTRJ6",
+          "text": "Review this PR:\n\n<PR LINK HERE...>",
+          "thread_ts": "",
+          "subtype": "",
+          "message": {
+            "text": "",
+            "subtype": "",
+            "thread_ts": "",
+            "ts": ""
+          }
         }
-      ]
+      },
+      "waitingTime": 1015
     }),
   };
 
@@ -55,3 +59,5 @@ const invokeFunction = async () => {
 };
 
 invokeFunction();
+
+

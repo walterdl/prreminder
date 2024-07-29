@@ -1,0 +1,89 @@
+const { LambdaClient, InvokeCommand } = require("@aws-sdk/client-lambda");
+
+const config = {
+  region: "us-west-2",
+  endpoint: "http://127.0.0.1:3001",
+  credentials: {
+    accessKeyId: "dummyAccessKeyId",
+    secretAccessKey: "dummySecretAccessKey",
+  },
+};
+
+const client = new LambdaClient(config);
+
+const invokeFunction = async () => {
+  const params = {
+    FunctionName: "PRReminder-ReminderStarter",
+    Payload: JSON.stringify({
+      "Records": [
+        {
+          "body": JSON.stringify({
+            "token": "...",
+            "team_id": "...",
+            "context_team_id": "...",
+            "context_enterprise_id": null,
+            "api_app_id": "...",
+            "event": {
+              "user": "...",
+              "type": "message",
+              "ts": "1719964122.073909",
+              "client_msg_id": "...",
+              "text": "Review this PR: <https:\/\/gitlab.com\/THE-NAMESPACE\/THE-PROJECT-NAME\/-\/merge_requests\/PR-ID>",
+              "team": "TFJUPEEJ2",
+              "blocks": [
+                {
+                  "type": "rich_text",
+                  "block_id": "Cn7m5",
+                  "elements": [
+                    {
+                      "type": "rich_text_section",
+                      "elements": [
+                        {
+                          "type": "text",
+                          "text": "Review this PR: "
+                        },
+                        {
+                          "type": "link",
+                          "url": "https:\/\/gitlab.com\/THE-NAMESPACE\/THE-PROJECT-NAME\/-\/merge_requests\/PR-ID>"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "channel": "...",
+              "event_ts": "1719964122.073909",
+              "channel_type": "channel"
+            },
+            "type": "event_callback",
+            "event_id": "...",
+            "event_time": 1719964122,
+            "authorizations": [
+              {
+                "enterprise_id": null,
+                "team_id": "...",
+                "user_id": "...",
+                "is_bot": true,
+                "is_enterprise_install": false
+              }
+            ],
+            "is_ext_shared_channel": false,
+            "event_context": "..."
+          }),
+        }
+      ]
+    }),
+  };
+
+  try {
+    const command = new InvokeCommand(params);
+    const response = await client.send(command);
+
+    console.log("Response payload:", new TextDecoder().decode(response.Payload));
+    console.log("Response status code:", response.StatusCode);
+  } catch (err) {
+    console.error("Error invoking Lambda function:", err);
+  }
+};
+
+invokeFunction();
