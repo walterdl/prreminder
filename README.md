@@ -55,3 +55,10 @@ Before running lambda Functions locally, the Go functions must be compiled. Ther
 
 - `prod`: From each Lambda function directory, run `task build`. Note that likely, this compilation won't be performed directly by the developer as it's run by the CDK at deployment time. This compilation disables debugging utilities and removes the RPC layer from the `aws-lambda-go` for a [smaller deployment unit](https://aws.amazon.com/blogs/compute/migrating-aws-lambda-functions-from-the-go1-x-runtime-to-the-custom-runtime-on-amazon-linux-2/).
 - `watch-mode`: From each Lambda function directory, run `task watch`. This re-compiles the function every time a Go file is modified.
+
+### API Keys
+
+Two API Keys of external services are needed to run the system:
+
+- GitLab API Key: Must have the `read_api` scope (readonly access). This API Key must be created by a user with read access to the PRs treated by the system. The CDK application expects this value to exist as an SSM Param with name `/prreminder/gitlab/api-key`.
+- Slack BOT Token: The Bot User OAuth Token with read and write access to the Slack channel where the PRs are published. The CDK application expects this value to exist as an SSM Param with name `/prreminder/slack/bot-token`.
